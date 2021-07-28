@@ -34,13 +34,18 @@ public class RestauranteRest {
 	@Path("/save_restaurante")
 	public Response saveRestaurant(@FormParam("nombre")String nombre, @FormParam("direccion") String direccion,
 			@FormParam("telefono")String telefono, @FormParam("aforo") int aforo) {
+		Message sms = new Message();
 		Restaurante restaurante = new Restaurante(0, nombre, direccion, telefono, aforo, null);
 		try {
 			ejbrestaurante.create(restaurante);
-			return Response.ok("Creado el restaurante codigo: "+restaurante.getId()+" \n Nombre: "+nombre+"., Aforo diario: "+aforo).build();
-		} catch (SQLException e) {
+			sms.setCode(200);
+			sms.setMessaje("Creado el restaurante codigo: "+restaurante.getId()+" \n Nombre: "+nombre+"., Aforo diario: "+aforo);
+			return Response.ok(sms).build();
+		} catch (Exception e) {
 			System.out.println(e.getLocalizedMessage());
-			return Response.serverError().build();
+			sms.setCode(404);
+			sms.setMessaje("Verifique los datos, no se pudo registrar el restaurante.");
+			return Response.ok(sms).build();
 		}
 	}
 	

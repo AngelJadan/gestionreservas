@@ -21,7 +21,7 @@ public class ClienteFacade extends AbstractFacade<Cliente>{
 	protected EntityManager getEntityManager() {
 		return em;
 	}
-	public Cliente search(String cedula)throws SQLException{
+	public Cliente search(String cedula){
 		Cliente cliente = new Cliente();
 		String sql = "SELECT cli FROM Cliente cli"
 				+ " WHERE cli.cedula=:cedula";

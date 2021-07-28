@@ -42,10 +42,12 @@ public class ReservaRest {
 
 	/**
 	 * Metodo para reservar un restaurante, en base de hora y fecha.
-	 * @param fecha A reservar
-	 * @param hora A reservar
-	 * @param cedula Numero de cedula del cliente.
-	 * @param asistentes Numero de asistentes a ocupar el restaurante en la hora y fecha indicada.
+	 * 
+	 * @param fecha      A reservar
+	 * @param hora       A reservar
+	 * @param cedula     Numero de cedula del cliente.
+	 * @param asistentes Numero de asistentes a ocupar el restaurante en la hora y
+	 *                   fecha indicada.
 	 * @param restaurant Nombre del restaurante.
 	 * @return
 	 */
@@ -57,10 +59,12 @@ public class ReservaRest {
 			@FormParam("cedula") String cedula, @FormParam("asistentes") int asistentes,
 			@FormParam("restaurante") String restaurant) {
 
+		System.out.println("fecha "+fecha+" hora "+hora+" cedula "+cedula+" asistentes "+asistentes+" restaurante "+restaurant);
+		Message sms = new Message();
 		Cliente cliente = new Cliente();
 		Restaurante restaurante = new Restaurante();
 		Reserva reserva = new Reserva();
-		int aforoocupado =0;
+		int aforoocupado = 0;
 		int afodisponible = 0;
 
 		try {
@@ -69,44 +73,53 @@ public class ReservaRest {
 				restaurante = ejbRestaurante.searchToName(restaurant);
 				if (restaurante != null) {
 					aforoocupado = ejbReserva.getAforo(restaurant, LocalDate.parse(fecha), LocalTime.parse(hora));
-					afodisponible = restaurante.getAforo()-aforoocupado;
-					if (afodisponible>asistentes) {
+					afodisponible = restaurante.getAforo() - aforoocupado;
+					if (afodisponible >= asistentes) {
 						reserva = new Reserva(0, LocalDate.parse(fecha), LocalTime.parse(hora), cliente, asistentes,
 								restaurante);
 						ejbReserva.create(reserva);
-						return Response.ok("Reserva registrada exitosamente, para la fecha: "+fecha+" hora: "+hora).build();
-					}else {
-						return Response.ok("El aforo es mayor al número de asistentes ingresaos para esta hora y fecha,"
-								+ "\n aforo disponible "+afodisponible).build();
+						sms.setCode(200);
+						sms.setMessaje("Reserva registrada exitosamente, \n para la fecha: " + fecha + " \n hora: " + hora);
+						return Response.ok(sms).build();
+					} else {
+						sms.setCode(404);
+						sms.setMessaje("El aforo es mayor al número de asistentes ingresados \n para esta hora y fecha,"
+								+ "\n aforo disponible " + afodisponible);
+						return Response.ok(sms).build();
 					}
-					
+
 				} else {
-					return Response.ok("No se ha podido regitrar la reserva, no existe el restaurante " + restaurant)
-							.build();
+					sms.setCode(404);
+					sms.setMessaje("No se ha podido regitrar la reserva, no existe el restaurante " + restaurant);
+					return Response.ok(sms).build();
 				}
 			} else {
-				return Response.ok(
+				sms.setCode(404);
+				sms.setMessaje(
 						"No se ha podido registrar la reserva, \n" + " no existe el cliente con el numero de cedula "
-								+ cedula + " \n" + " primero debe de crear el cliente.")
-						.build();
+								+ cedula + " \n" + " primero debe de crear el cliente.");
+				return Response.ok(sms).build();
 			}
 		} catch (Exception e) {
 			System.out.println("Error reserva. " + e.getLocalizedMessage());
-			return Response.serverError().build();
+			sms.setCode(500);
+			sms.setMessaje("No se ha podido registrar la reserva, \n" + " no existe el cliente con el numero de cedula "
+					+ cedula + " \n" + " primero debe de crear el cliente.");
+			return Response.ok().build();
 		}
 	}
 
 	/**
 	 * Metodo para listar las reservas del restaurante en una fecha.
+	 * 
 	 * @param nombre Nombre del restaurante.
-	 * @param fecha Fecha a consultar las reservas.
+	 * @param fecha  Fecha a consultar las reservas.
 	 * @return
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/list_reserva_restaurante")
-	public Response listReservaRestaurante(@QueryParam("nombre") String nombre,
-			@QueryParam("fecha") String fecha) {
+	public Response listReservaRestaurante(@QueryParam("nombre") String nombre, @QueryParam("fecha") String fecha) {
 		List<Reserva> lista = new ArrayList<Reserva>();
 		try {
 			lista = ejbReserva.listReservaRest(nombre, LocalDate.parse(fecha));
@@ -116,16 +129,18 @@ public class ReservaRest {
 			return Response.serverError().build();
 		}
 	}
+
 	/**
 	 * Metodo para consular las reservas del cliente.
+	 * 
 	 * @param cedula Numero de cedula del cliente.
 	 * @return Listado de reservas del cliente.
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/list_reserva_cliente")
-	public Response listReservaCliente(@QueryParam("cedula")String cedula) {
-		List<Reserva>lista = new ArrayList<Reserva>();
+	public Response listReservaCliente(@QueryParam("cedula") String cedula) {
+		List<Reserva> lista = new ArrayList<Reserva>();
 		try {
 			lista = ejbReserva.listReservaCliente(cedula);
 			return Response.ok(lista).build();
@@ -133,6 +148,6 @@ public class ReservaRest {
 			System.out.println(e.getLocalizedMessage());
 			return Response.serverError().build();
 		}
-		
+
 	}
 }
