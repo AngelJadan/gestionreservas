@@ -36,6 +36,7 @@ public class Reserva implements Serializable {
 	private int id;
 	
 	@Column(name = "rev_fecha", length = 20, nullable = false)
+	
 	private LocalDate fecha;
 	
 	@Column(name = "rev_hora", length = 20, nullable = false)
