@@ -121,8 +121,10 @@ public class ReservaRest {
 	@Path("/list_reserva_restaurante")
 	public Response listReservaRestaurante(@QueryParam("nombre") String nombre, @QueryParam("fecha") String fecha) {
 		List<Reserva> lista = new ArrayList<Reserva>();
+		System.out.println("restaurante: "+nombre+" fecha: "+fecha);
 		try {
 			lista = ejbReserva.listReservaRest(nombre, LocalDate.parse(fecha));
+			System.out.println("Reserva de restaurantes: "+lista.toString());
 			return Response.ok(lista).build();
 		} catch (SQLException e) {
 			System.out.println("Error consulta lista por restaurante. " + e.getLocalizedMessage());

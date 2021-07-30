@@ -47,9 +47,10 @@ public class ReservaFacade extends AbstractFacade<Reserva>{
 	 * @throws SQLException
 	 */
 	public List<Reserva> listReservaRest(String nombre, LocalDate fecha)throws SQLException {
+		System.out.println("rest: "+nombre+" fecha: "+fecha);
 		List<Reserva> lista = new ArrayList<Reserva>();
 		String sql = "SELECT rev FROM Reserva rev, Restaurante res "
-				+ "WHERE res.nombre =:nombre AND rev.fecha=:fecha";
+				+ "WHERE res.nombre =:nombre AND res.id = rev.restaurante AND rev.fecha=:fecha";
 		lista = em.createQuery(sql, Reserva.class)
 				.setParameter("nombre", nombre)
 				.setParameter("fecha", fecha)
